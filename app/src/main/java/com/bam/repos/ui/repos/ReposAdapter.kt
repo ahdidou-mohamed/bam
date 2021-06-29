@@ -91,6 +91,11 @@ class ReposAdapter: Adapter<RecyclerView.ViewHolder >() {
         }
     }
 
+    fun clear() {
+        repositories.clear()
+        notifyDataSetChanged()
+    }
+
     fun setData(newData: List<ReposItem>) {
         repositories.addAll(newData)
         notifyDataSetChanged()

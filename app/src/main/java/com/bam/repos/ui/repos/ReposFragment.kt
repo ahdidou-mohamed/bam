@@ -64,11 +64,20 @@ class ReposFragment : BaseFragment<ReposPresenter>(), ReposView {
         binding.reposRecyclerView.addOnScrollListener(scrollListener)
         binding.reposRecyclerView.setHasFixedSize(true)
 
+        // Swipe to refresh
+
+        binding.swiperefresh.setOnRefreshListener {
+            currentReposIndex = 1
+            reposAdapter.clear()
+            presenter.loadRepos(currentReposIndex)
+        }
+
         return binding.root
     }
 
     override fun updateRepos(repos: List<ReposItem>) {
         scrollListener.setLoaded()
+        binding.swiperefresh.isRefreshing = false
         reposAdapter.removeLoadingView()
         reposAdapter.setData(repos)
     }
