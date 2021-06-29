@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bam.repos.base.BaseFragment
 import com.bam.repos.databinding.FragmentReposLayoutBinding
 import com.bam.repos.model.ReposItem
@@ -19,18 +21,25 @@ class ReposFragment : BaseFragment<ReposPresenter>(), ReposView {
     private var _binding: FragmentReposLayoutBinding? = null
     private val binding get() = _binding!!
 
+    /**
+     * The adapter for the list of repositories
+     */
+    private val postsAdapter = ReposAdapter()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentReposLayoutBinding.inflate(layoutInflater)
+        binding.adapter = postsAdapter
+        binding.layoutManager = LinearLayoutManager(activity)
         presenter.onViewCreated()
         return binding.root
     }
 
     override fun updateRepos(repos: List<ReposItem>) {
-
+        postsAdapter.setData(repos)
     }
 
     override fun showError(error: String) {

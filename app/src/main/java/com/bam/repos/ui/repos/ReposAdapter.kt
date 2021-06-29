@@ -45,8 +45,8 @@ class ReposAdapter: Adapter<ReposAdapter.MyViewHolder>() {
         val diffUtil = ReposDiffUtil(repositories, repositories)
         val diffUtilResult = DiffUtil.calculateDiff(diffUtil)
         repositories = newData
-
-        diffUtilResult.dispatchUpdatesTo(this)
+        notifyDataSetChanged()
+       // diffUtilResult.dispatchUpdatesTo(this)
     }
 
 }
