@@ -21,10 +21,12 @@ class ReposPresenter(reposView: ReposView) : BasePresenter<ReposView>(reposView)
      * Loads the repos from the API and presents them in the view when retrieved, or shows error if
      * any.
      */
-    private fun loadRepos(index: Int) {
+    fun loadRepos(index: Int) {
         view.showLoading()
 
         val apiService = client!!.create(ApiInterface::class.java)
+
+        subscription?.dispose()
 
         subscription = apiService
             .getRepos(index)
@@ -33,11 +35,13 @@ class ReposPresenter(reposView: ReposView) : BasePresenter<ReposView>(reposView)
             .doOnTerminate { view.hideLoading() }
             .subscribe(
                 { reposList -> view.updateRepos(reposList) },
-                { err -> view.showError(err.localizedMessage) }
+                { err -> {
+                    view.showError(err.localizedMessage)
+                } }
             )
     }
 
     override fun onViewDestroyed() {
-        subscription?.dispose()
+       // subscription?.dispose()
     }
 }

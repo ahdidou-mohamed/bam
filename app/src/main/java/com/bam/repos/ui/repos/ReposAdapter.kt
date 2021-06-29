@@ -1,17 +1,22 @@
 package com.bam.repos.ui.repos
 
+import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
+import com.bam.repos.databinding.LoadMoreLoaderLayoutBinding
 import com.bam.repos.databinding.ReposRowLayoutBinding
 import com.bam.repos.model.ReposItem
+import com.bam.repos.utils.Constant.Companion.VIEW_TYPE_ITEM
+import com.bam.repos.utils.Constant.Companion.VIEW_TYPE_LOADING
 import com.bam.repos.utils.ReposDiffUtil
 
-class ReposAdapter: Adapter<ReposAdapter.MyViewHolder>() {
+class ReposAdapter: Adapter<RecyclerView.ViewHolder >() {
 
-    private var repositories = emptyList<ReposItem>()
+    private var repositories = mutableListOf<ReposItem?>()
 
     class MyViewHolder(val binding: ReposRowLayoutBinding) : RecyclerView.ViewHolder(binding.root){
 
@@ -28,25 +33,68 @@ class ReposAdapter: Adapter<ReposAdapter.MyViewHolder>() {
             }
         }
     }
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-       return MyViewHolder.from(parent)
+
+
+
+    class LoadingViewHolder(val binding: LoadMoreLoaderLayoutBinding) : RecyclerView.ViewHolder(binding.root){
+        companion object {
+            fun from(parent: ViewGroup): LoadingViewHolder {
+                val layoutInflater= LayoutInflater.from(parent.context)
+                val binding = LoadMoreLoaderLayoutBinding.inflate(layoutInflater, parent, false)
+                return LoadingViewHolder(binding)
+            }
+        }
     }
 
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val currentRepos = repositories[position]
-        holder.bind(currentRepos)
+    override fun getItemViewType(position: Int): Int {
+        return if (repositories[position] == null) {
+            VIEW_TYPE_LOADING
+        } else {
+            VIEW_TYPE_ITEM
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_ITEM) {
+            MyViewHolder.from(parent)
+        }else {
+            LoadingViewHolder.from(parent)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder , position: Int) {
+        if (holder.itemViewType == VIEW_TYPE_ITEM) {
+            val currentRepos = repositories[position]!!
+            (holder as MyViewHolder).bind(currentRepos)
+            holder.bind(currentRepos)
+        }
+
     }
 
     override fun getItemCount(): Int {
         return repositories.size
     }
 
+    fun addLoadingView() {
+        //Add loading item
+        Handler().post {
+            repositories.add(null)
+            notifyItemInserted(repositories.size - 1)
+        }
+    }
+
+    fun removeLoadingView() {
+        //Remove loading item
+        if (repositories.size != 0) {
+            repositories.removeAt(repositories.size - 1)
+            notifyItemRemoved(repositories.size)
+        }
+    }
+
     fun setData(newData: List<ReposItem>) {
-        val diffUtil = ReposDiffUtil(repositories, repositories)
-        val diffUtilResult = DiffUtil.calculateDiff(diffUtil)
-        repositories = newData
+        repositories.addAll(newData)
         notifyDataSetChanged()
-       // diffUtilResult.dispatchUpdatesTo(this)
+        Log.d("ONLOADMORE", repositories.size.toString())
     }
 
 }

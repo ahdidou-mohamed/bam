@@ -2,6 +2,7 @@ package com.bam.repos.ui.repos
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bam.repos.base.BaseFragment
 import com.bam.repos.databinding.FragmentReposLayoutBinding
 import com.bam.repos.model.ReposItem
+import com.bam.repos.utils.OnLoadMoreListener
+import com.bam.repos.utils.RecyclerViewLoadMoreScroll
 import com.google.android.material.snackbar.Snackbar
 
 class ReposFragment : BaseFragment<ReposPresenter>(), ReposView {
@@ -24,7 +27,17 @@ class ReposFragment : BaseFragment<ReposPresenter>(), ReposView {
     /**
      * The adapter for the list of repositories
      */
-    private val postsAdapter = ReposAdapter()
+    private val reposAdapter = ReposAdapter()
+
+    /**
+     * The Recycler View Scroll Listener
+     */
+    lateinit var scrollListener: RecyclerViewLoadMoreScroll
+
+    /**
+     * Hold the current page index
+     */
+    private var currentReposIndex = 1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,26 +45,46 @@ class ReposFragment : BaseFragment<ReposPresenter>(), ReposView {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentReposLayoutBinding.inflate(layoutInflater)
-        binding.adapter = postsAdapter
+
+        binding.adapter = reposAdapter
         binding.layoutManager = LinearLayoutManager(activity)
+
+        // Calling the presenter onViewCreated to initialize the network request
         presenter.onViewCreated()
+
+        // Adding Load more listener
+        val layoutManager = LinearLayoutManager(activity)
+        scrollListener = RecyclerViewLoadMoreScroll(layoutManager)
+        scrollListener.setOnLoadMoreListener(object : OnLoadMoreListener {
+            override fun onLoadMore() {
+                presenter.loadRepos(currentReposIndex)
+                currentReposIndex++
+            }
+        })
+        binding.reposRecyclerView.addOnScrollListener(scrollListener)
+        binding.reposRecyclerView.setHasFixedSize(true)
+
         return binding.root
     }
 
     override fun updateRepos(repos: List<ReposItem>) {
-        postsAdapter.setData(repos)
+        scrollListener.setLoaded()
+        reposAdapter.removeLoadingView()
+        reposAdapter.setData(repos)
     }
 
     override fun showError(error: String) {
         Snackbar.make(binding.reposContainer, error, Snackbar.LENGTH_LONG).setAction("Ok") {}.show()
+        currentReposIndex--
     }
 
     override fun showLoading() {
-        binding.progressBar.visibility = View.VISIBLE
+        reposAdapter.addLoadingView()
     }
 
     override fun hideLoading() {
-        binding.progressBar.visibility = View.INVISIBLE
+        scrollListener.setLoaded()
+        reposAdapter.removeLoadingView()
     }
 
     override fun instantiatePresenter(): ReposPresenter {
