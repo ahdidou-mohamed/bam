@@ -1,13 +1,13 @@
 package com.bam.repos.utils
 
-import android.util.Log
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 
 class RecyclerViewLoadMoreScroll : RecyclerView.OnScrollListener {
-    private var visibleThreshold = 1
+
+    private var visibleThreshold = 5
     private lateinit var mOnLoadMoreListener: OnLoadMoreListener
     private var isLoading: Boolean = false
     private var lastVisibleItem: Int = 0

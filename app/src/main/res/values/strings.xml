@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">BAM</string>
+    <string name="propri_taire">Propriétaire :</string>
+    <string name="priv">Privé :</string>
 </resources>

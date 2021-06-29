@@ -1,13 +1,11 @@
 package com.bam.repos.ui.repos
 
 import com.bam.repos.base.BasePresenter
+import com.bam.repos.network.ApiClient.client
+import com.bam.repos.network.ApiInterface
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import com.bam.repos.network.ApiInterface
-
-import com.bam.repos.network.ApiClient
-import com.bam.repos.network.ApiClient.client
-import io.reactivex.android.schedulers.AndroidSchedulers
 
 
 class ReposPresenter(reposView: ReposView) : BasePresenter<ReposView>(reposView) {
@@ -26,8 +24,6 @@ class ReposPresenter(reposView: ReposView) : BasePresenter<ReposView>(reposView)
 
         val apiService = client!!.create(ApiInterface::class.java)
 
-        subscription?.dispose()
-
         subscription = apiService
             .getRepos(index)
             .observeOn(AndroidSchedulers.mainThread())
@@ -35,13 +31,11 @@ class ReposPresenter(reposView: ReposView) : BasePresenter<ReposView>(reposView)
             .doOnTerminate { view.hideLoading() }
             .subscribe(
                 { reposList -> view.updateRepos(reposList) },
-                { err -> {
-                    view.showError(err.localizedMessage)
-                } }
+                { err -> view.showError(err.localizedMessage) }
             )
     }
 
     override fun onViewDestroyed() {
-       // subscription?.dispose()
+        subscription?.dispose()
     }
 }

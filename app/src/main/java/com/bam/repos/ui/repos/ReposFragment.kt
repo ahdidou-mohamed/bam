@@ -1,13 +1,10 @@
 package com.bam.repos.ui.repos
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bam.repos.base.BaseFragment
 import com.bam.repos.databinding.FragmentReposLayoutBinding
@@ -46,23 +43,31 @@ class ReposFragment : BaseFragment<ReposPresenter>(), ReposView {
     ): View? {
         _binding = FragmentReposLayoutBinding.inflate(layoutInflater)
 
-        binding.adapter = reposAdapter
-        binding.layoutManager = LinearLayoutManager(activity)
-
         // Calling the presenter onViewCreated to initialize the network request
         presenter.onViewCreated()
 
-        // Adding Load more listener
+        // Setting up the RecyclerView
+        setUpRecyclerView()
+
+        return binding.root
+    }
+
+    private fun setUpRecyclerView() {
         val layoutManager = LinearLayoutManager(activity)
+
+        binding.reposRecyclerView.adapter = reposAdapter
+        binding.reposRecyclerView.layoutManager = layoutManager
+        binding.reposRecyclerView.setHasFixedSize(true)
+
+        // Adding Load more listener
         scrollListener = RecyclerViewLoadMoreScroll(layoutManager)
         scrollListener.setOnLoadMoreListener(object : OnLoadMoreListener {
             override fun onLoadMore() {
-                presenter.loadRepos(currentReposIndex)
                 currentReposIndex++
+                presenter.loadRepos(currentReposIndex)
             }
         })
         binding.reposRecyclerView.addOnScrollListener(scrollListener)
-        binding.reposRecyclerView.setHasFixedSize(true)
 
         // Swipe to refresh
 
@@ -71,12 +76,9 @@ class ReposFragment : BaseFragment<ReposPresenter>(), ReposView {
             reposAdapter.clear()
             presenter.loadRepos(currentReposIndex)
         }
-
-        return binding.root
     }
 
     override fun updateRepos(repos: List<ReposItem>) {
-        scrollListener.setLoaded()
         binding.swiperefresh.isRefreshing = false
         reposAdapter.removeLoadingView()
         reposAdapter.setData(repos)
@@ -85,6 +87,7 @@ class ReposFragment : BaseFragment<ReposPresenter>(), ReposView {
     override fun showError(error: String) {
         Snackbar.make(binding.reposContainer, error, Snackbar.LENGTH_LONG).setAction("Ok") {}.show()
         currentReposIndex--
+        scrollListener.setLoaded()
     }
 
     override fun showLoading() {

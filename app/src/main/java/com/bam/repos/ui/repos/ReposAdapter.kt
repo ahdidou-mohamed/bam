@@ -4,7 +4,6 @@ import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.bam.repos.databinding.LoadMoreLoaderLayoutBinding
@@ -12,7 +11,6 @@ import com.bam.repos.databinding.ReposRowLayoutBinding
 import com.bam.repos.model.ReposItem
 import com.bam.repos.utils.Constant.Companion.VIEW_TYPE_ITEM
 import com.bam.repos.utils.Constant.Companion.VIEW_TYPE_LOADING
-import com.bam.repos.utils.ReposDiffUtil
 
 class ReposAdapter: Adapter<RecyclerView.ViewHolder >() {
 
@@ -78,8 +76,10 @@ class ReposAdapter: Adapter<RecyclerView.ViewHolder >() {
     fun addLoadingView() {
         //Add loading item
         Handler().post {
-            repositories.add(null)
-            notifyItemInserted(repositories.size - 1)
+            if (repositories.size > 0 && repositories[repositories.size - 1] != null) {
+                repositories.add(null)
+                notifyItemInserted(repositories.size - 1)
+            }
         }
     }
 

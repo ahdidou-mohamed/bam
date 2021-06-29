@@ -65,21 +65,47 @@
                     app:layout_constraintTop_toBottomOf="@id/repos_description"
                     android:orientation="horizontal"
                     android:layout_marginTop="12dp">
-                    <TextView
-                        android:id="@+id/repos_owner"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@{`Owner : ` + repos.owner.login}"
-                        android:textSize="18sp"/>
+                        android:layout_weight="2"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/propri_taire"
+                            android:textStyle="bold"
+                            android:textSize="18sp"/>
+                        <TextView
+                            android:id="@+id/repos_owner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@{repos.owner.login}"
+                            android:textSize="18sp"/>
+                    </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/repos_isprivate"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@{`Privé : ` + repos.private}"
-                        android:textSize="18sp"/>
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/priv"
+                            android:textStyle="bold"
+                            android:textSize="18sp"/>
+                        <TextView
+                            android:id="@+id/repos_private"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@{repos.private ? `Oui` : `Non` }"
+                            android:textSize="18sp"/>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
